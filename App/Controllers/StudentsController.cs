@@ -8,6 +8,8 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -44,34 +46,61 @@ namespace App.Controllers
              return CreatedAtAction(student.FirstMidName, new { id = student.ID }, student);
          }*/
 
+        //[HttpGet]
+        //public ActionResult<IEnumerable<Student>> get()
+        //{
+
+        //    string query = @"";
+        //    datatable table = new datatable();
+        //    string sqldatasource = _configuration.getconnectionstring("defaultconnection");
+        //    console.writeline(sqldatasource);
+        //    mysqldatareader myreader;
+        //    using (SqlConnection mycon = new SqlConnection(sqldatasource))
+        //    {
+        //        mycon.open();
+        //        using (SqlCommand mycommand = new SqlCommand(query, mycon))
+        //        {
+        //            myreader = mycommand.ExecuteReader();
+        //            table.load(myreader);
+        //            myreader.close();
+
+        //        }
+        //    }
+        //    return null;
+        //}
+
+        //    }
         [HttpGet]
-        public ActionResult<IEnumerable<Student>> Get()
+        public string Get()
         {
-            string query = @"select * from dbo.Table2";
-            DataTable table = new DataTable();
-            string sqlDataSource = _configuration.GetConnectionString("DefaultConnection");
-            Console.WriteLine(sqlDataSource);
-            MySqlDataReader myReader;
-            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
+            string queryString =
+                "SELECT * FROM Table_2";
+            using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            SqlCommand command = new SqlCommand(queryString, connection);
+            command.Connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+            try
             {
-                mycon.Open();
-                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
+
+                while (reader.Read())
                 {
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    mycon.Close();
+                    Trace.WriteLine(reader.GetString(0));
                 }
+
             }
-            return new JsonResult(table);
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+            }
+
+            
+            Console.WriteLine("--------------------");
+            reader.Close();
+
+            return null;
+
 
         }
-
-
-
-
-
-
 
     }
 }
